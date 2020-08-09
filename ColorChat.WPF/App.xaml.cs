@@ -1,4 +1,6 @@
-﻿using ColorChat.WPF.ViewModels;
+﻿using ColorChat.WPF.Services;
+using ColorChat.WPF.ViewModels;
+using Microsoft.AspNetCore.SignalR.Client;
 using System.Windows;
 
 namespace ColorChat.WPF
@@ -7,7 +9,11 @@ namespace ColorChat.WPF
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            ColorChatViewModel chatViewModel = new ColorChatViewModel();
+            HubConnection connection = new HubConnectionBuilder()
+                .WithUrl("http://localhost:5000/colorchat")
+                .Build();
+
+            ColorChatViewModel chatViewModel = ColorChatViewModel.CreatedConnectedViewModel(new SignalRChatService(connection));
 
             MainWindow window = new MainWindow
             {

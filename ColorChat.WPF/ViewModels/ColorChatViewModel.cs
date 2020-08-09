@@ -1,4 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using ColorChat.Domain.Models;
+using ColorChat.WPF.Commands;
+using ColorChat.WPF.Services;
+using System.Collections.ObjectModel;
+using System.Drawing;
+using System.Windows.Input;
 
 namespace ColorChat.WPF.ViewModels
 {
@@ -79,9 +84,35 @@ namespace ColorChat.WPF.ViewModels
 
 		public ObservableCollection<ColorChatColorViewModel> Messages { get; }
 
-		public ColorChatViewModel()
+        public ICommand SendColorChatColorMessageCommand { get; }
+
+		public ColorChatViewModel(SignalRChatService chatService)
 		{
+            SendColorChatColorMessageCommand = new SendColorChatColorMessageCommand(this, chatService);
+
 			Messages = new ObservableCollection<ColorChatColorViewModel>();
+
+            chatService.ColorMessageReceived += ChatService_ColorMessageReceived;
 		}
-	}
+
+        public static ColorChatViewModel CreatedConnectedViewModel(SignalRChatService chatService)
+        {
+            ColorChatViewModel viewModel = new ColorChatViewModel(chatService);
+
+            chatService.Connect().ContinueWith(task =>
+            {
+                if(task.Exception != null)
+                {
+                    viewModel.ErrorMessage = "Unable to connect to color chat hub";
+                }
+            });
+
+            return viewModel;
+        }
+
+        private void ChatService_ColorMessageReceived(ColorChatColor color)
+        {
+            Messages.Add(new ColorChatColorViewModel(color));
+        }
+    }
 }

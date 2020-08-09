@@ -49,6 +49,7 @@
 
             <Button Grid.Column="1" Margin="0 20 0 0" Padding="10 3"
                 HorizontalAlignment="Left"
+                Command="{Binding SendColorChatColorMessageCommand}"
                 Content="Send" />
         </StackPanel>
 
